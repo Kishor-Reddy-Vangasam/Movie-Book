@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — MovieBook</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- Toast -->
+<div id="toast-container"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🎬</div>
+    <div>
+      <div class="logo-text">MovieBook</div>
+      <div class="logo-sub">Admin Panel</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-label">Main</div>
+      <button class="sidebar-link active" data-section="dashboard">
+        <span class="link-icon">📊</span> Dashboard
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Content</div>
+      <button class="sidebar-link" data-section="movies">
+        <span class="link-icon">🎬</span> Movies
+      </button>
+      <button class="sidebar-link" data-section="theatres">
+        <span class="link-icon">🏛</span> Theatres
+      </button>
+      <button class="sidebar-link" data-section="screens">
+        <span class="link-icon">🖥</span> Screens
+      </button>
+      <button class="sidebar-link" data-section="shows">
+        <span class="link-icon">🎭</span> Shows
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Operations</div>
+      <button class="sidebar-link" data-section="bookings">
+        <span class="link-icon">🎟️</span> Bookings
+      </button>
+      <button class="sidebar-link" data-section="users">
+        <span class="link-icon">👥</span> Users
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">System</div>
+      <a href="index.html" class="sidebar-link">
+        <span class="link-icon">🌐</span> Customer Site
+      </a>
+      <button class="sidebar-link" onclick="adminLogout()">
+        <span class="link-icon">🚪</span> Logout
+      </button>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebar-avatar">A</div>
+      <div>
+        <div class="sidebar-user-name" id="sidebar-user-name">Admin</div>
+        <div class="sidebar-user-role">Administrator</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<div class="main-content">
+  <div class="topbar">
+    <button class="btn btn-outline btn-sm" style="display:none" id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <span class="topbar-title">Dashboard</span>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-actions">
+      <span style="font-size:0.82rem;color:var(--text-muted)" id="topbar-time"></span>
+    </div>
+  </div>
+  <div id="admin-content">
+    <!-- Dynamic content loaded by admin.js -->
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="handleModalOverlayClick(event)">
+  <div class="modal modal-lg" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Title</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+<script>
+  // Close modal when clicking overlay
+  function handleModalOverlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+
+  // Logout
+  async function adminLogout() {
+    const token = localStorage.getItem('mb_token');
+    if (token) {
+      try {
+        await fetch(`${API_BASE_URL}/auth/logout/`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+      } catch(e) {}
+    }
+    localStorage.removeItem('mb_token');
+    localStorage.removeItem('mb_user');
+    window.location.href = 'index.html#/login';
+  }
+
+  // Toggle sidebar on mobile
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  // Show current time in topbar
+  function updateClock() {
+    const el = document.getElementById('topbar-time');
+    if (el) el.textContent = new Date().toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
+  }
+  updateClock();
+  setInterval(updateClock, 60000);
+
+  // Responsive sidebar toggle
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar-toggle').style.display = 'block';
+  }
+</script>
+</body>
+</html>
