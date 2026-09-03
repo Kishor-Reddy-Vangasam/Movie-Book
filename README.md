@@ -96,7 +96,6 @@ pip install -r requirements.txt
 The `.env` file already contains the MongoDB Atlas credentials:
 
 ```env
-MONGO_URI=mongodb+srv://kudumugreeshma113_db_user:Greeshma%4023@cluster0.isnykqz.mongodb.net/
 MONGO_DB_NAME=movie_booking
 ```
 
