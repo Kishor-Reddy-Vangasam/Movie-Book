@@ -189,9 +189,19 @@ async function router() {
 async function renderHome() {
   document.getElementById('app').innerHTML = `<div id="home-container"></div>`;
 
+  // Try the live Django API first.
+  // If it is unreachable (e.g. Vercel deployment without a backend),
+  // fall back silently to the bundled LOCAL_MOVIES dataset so the
+  // page always renders with real content.
   const res = await api.get('/movies/');
-  if (!res.ok) { showToast('Failed to load movies', 'error'); return; }
-  state.movies = res.data.data || [];
+  if (res.ok && res.data && res.data.data && res.data.data.length > 0) {
+    state.movies = res.data.data;
+  } else if (typeof LOCAL_MOVIES !== 'undefined' && LOCAL_MOVIES.length > 0) {
+    state.movies = LOCAL_MOVIES;
+  } else {
+    showToast('Failed to load movies', 'error');
+    return;
+  }
 
   renderHomeContent();
 }
@@ -309,7 +319,11 @@ async function renderMoviesPage() {
   showLoading();
   if (!state.movies.length) {
     const res = await api.get('/movies/');
-    state.movies = res.ok ? (res.data.data || []) : [];
+    if (res.ok && res.data && res.data.data && res.data.data.length > 0) {
+      state.movies = res.data.data;
+    } else if (typeof LOCAL_MOVIES !== 'undefined' && LOCAL_MOVIES.length > 0) {
+      state.movies = LOCAL_MOVIES;
+    }
   }
   const genres = ['All', ...new Set(state.movies.map(m => m.genre).filter(Boolean))];
   const movies = filterMovies();
